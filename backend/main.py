@@ -14,14 +14,16 @@ logger = logging.getLogger("carescribe.main")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup: seed Orthanc with a test study (OC-06). Shutdown: dispose engine."""
-    from services import dicom_seed
+    """Startup: seed Orthanc + build the FAISS face index. Shutdown: dispose engine."""
+    from services import dicom_seed, faceid
 
     await dicom_seed.seed_orthanc()
+    await faceid.rebuild_index()
     yield
-    from database import engine
+    import database
 
-    await engine.dispose()
+    if database._engine is not None:
+        await database._engine.dispose()
 
 
 app = FastAPI(
@@ -40,12 +42,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from routes import auth, health, imaging, ocr  # noqa: E402  (import after app defined)
+from routes import auth, faceid, health, imaging, ocr  # noqa: E402  (import after app defined)
 
 app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(ocr.router)
 app.include_router(imaging.router)
+app.include_router(faceid.router)
 
 
 @app.get("/health")
