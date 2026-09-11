@@ -1,0 +1,58 @@
+# CareScribe — Render deployment (free tier, OC-15)
+# https://render.com/docs/blueprint-spec
+#
+# Deploy: connect the repo, Render reads this file.
+# Free tier notes:
+#   - free Postgres expires after 90 days (fine for demo); switch to basic
+#     for anything real
+#   - pgvector: Render managed PG supports the vector extension; if the
+#     plan lacks it, the RAG table creation falls back gracefully
+#   - models + orthanc need Docker services -> deploy them as Render
+#     Docker web services or keep them on the prod compose host
+
+services:
+  - type: web
+    name: carescribe-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    plan: free
+    region: oregon
+    healthCheckPath: /health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: carescribe-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FERNET_KEY
+        sync: false # set once in dashboard (32-byte url-safe base64)
+      - key: LLM_API_KEY
+        sync: false
+      - key: LLM_MODEL
+        value: claude-sonnet-4-6
+      - key: MODEL_SERVICE_URL
+        value: http://models:9000
+      - key: CORS_ORIGINS
+        sync: false # prod frontend origin
+      - key: RATE_LIMITS
+        value: "on"
+
+  - type: web
+    name: carescribe-models
+    runtime: docker
+    dockerfilePath: ./models/Dockerfile
+    plan: free
+    region: oregon
+    healthCheckPath: /health
+    envVars:
+      - key: WARMUP_ON_STARTUP
+        value: "false"
+
+databases:
+  - name: carescribe-db
+    plan: free
+    region: oregon
+    postgresMajorVersion: "15"

@@ -1,0 +1,94 @@
+# CareScribe — production stack (OC-15).
+# No hot reload, no dev credentials, env-injected config.
+# Usage: docker compose -f docker-compose.prod.yml up -d
+#
+# Required env (see backend/.env.example):
+#   JWT_SECRET, FERNET_KEY, LLM_API_KEY, OPENEMR_CLIENT_SECRET,
+#   POSTGRES_PASSWORD, REDIS_PASSWORD
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg15
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: carescribe
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: carescribe
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks: [carescribe_net]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U carescribe -d carescribe"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:?set REDIS_PASSWORD}"]
+    volumes:
+      - redis_data:/data
+    networks: [carescribe_net]
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a $$REDIS_PASSWORD ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: postgresql+asyncpg://carescribe:${POSTGRES_PASSWORD}@postgres:5432/carescribe
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET}
+      FERNET_KEY: ${FERNET_KEY:?set FERNET_KEY}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-claude-sonnet-4-6}
+      MODEL_SERVICE_URL: http://models:9000
+      OPENEMR_BASE_URL: ${OPENEMR_BASE_URL:-http://openemr:80/apis/default/fhir}
+      OPENEMR_TOKEN_URL: ${OPENEMR_TOKEN_URL:-http://openemr:80/apis/default/token}
+      OPENEMR_CLIENT_ID: ${OPENEMR_CLIENT_ID:-carescribe-backend}
+      OPENEMR_CLIENT_SECRET: ${OPENEMR_CLIENT_SECRET:-}
+      ORTHANC_URL: http://orthanc:8042
+      CORS_ORIGINS: ${CORS_ORIGINS:?set CORS_ORIGINS (prod frontend origin)}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks: [carescribe_net]
+
+  models:
+    build:
+      context: ./models
+    restart: unless-stopped
+    environment:
+      WARMUP_ON_STARTUP: "true"
+    volumes:
+      - model_weights:/app/weights
+    networks: [carescribe_net]
+
+  orthanc:
+    image: jodogne/orthanc-plugins:latest
+    restart: unless-stopped
+    volumes:
+      - orthanc_data:/var/lib/orthanc/db
+      - ./infra/orthanc/orthanc.json:/etc/orthanc/orthanc.json:ro
+    networks: [carescribe_net]
+
+volumes:
+  pg_data:
+  redis_data:
+  orthanc_data:
+  model_weights:
+
+networks:
+  carescribe_net:
+    driver: bridge
