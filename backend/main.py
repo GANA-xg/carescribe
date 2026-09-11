@@ -42,13 +42,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from routes import auth, faceid, health, imaging, ocr  # noqa: E402  (import after app defined)
+from routes import auth, faceid, health, imaging, ocr, passport  # noqa: E402
 
 app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(ocr.router)
 app.include_router(imaging.router)
 app.include_router(faceid.router)
+app.include_router(passport.router)
 
 
 @app.get("/health")
