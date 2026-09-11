@@ -1,0 +1,42 @@
+code,description
+A09,Infectious gastroenteritis and colitis
+A08,Other intestinal infections
+A49,Bacterial infection unspecified site
+B54,Unspecified malaria
+B99,Other infectious diseases
+E11,Type 2 diabetes mellitus
+E10,Type 1 diabetes mellitus
+E16,Other disorders of glucose regulation
+E03,Other hypothyroidism
+E05,Thyrotoxicosis
+E66,Overweight and obesity
+I10,Essential hypertension
+I11,Hypertensive heart disease
+I15,Secondary hypertension
+I20,Angina pectoris
+I21,Acute myocardial infarction
+I25,Chronic ischemic heart disease
+I50,Heart failure
+I63,Cerebral infarction
+J06,Acute upper respiratory infections
+J11,Influenza virus identified
+J12,Viral pneumonia
+J15,Bacterial pneumonia
+J18,Pneumonia unspecified organism
+J20,Acute bronchitis
+J44,Chronic obstructive pulmonary disease
+J45,Asthma
+K29,Gastritis and duodenitis
+K52,Other noninfective gastroenteritis and colitis
+K80,Cholelithiasis
+K85,Acute pancreatitis
+L50,Urticaria
+M54,Dorsalgia
+M79,Other soft tissue disorders
+N39,Other disorders of urinary system
+N70,Inflammatory disease of female pelvic organs
+R05,Cough
+R50,Fever of unknown origin
+R07,Pain in throat and chest
+R51,Headache
+Z00,General medical examination

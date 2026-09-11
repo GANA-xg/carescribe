@@ -42,7 +42,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from routes import auth, clinical, drugs, faceid, health, imaging, ocr, passport, symptoms  # noqa: E402
+from routes import (  # noqa: E402
+    assistant,
+    auth,
+    clinical,
+    diagnosis,
+    drugs,
+    faceid,
+    health,
+    imaging,
+    ocr,
+    passport,
+    symptoms,
+)
 
 app.include_router(health.router)
 app.include_router(auth.router)
@@ -53,6 +65,8 @@ app.include_router(passport.router)
 app.include_router(drugs.router)
 app.include_router(symptoms.router)
 app.include_router(clinical.router)
+app.include_router(assistant.router)
+app.include_router(diagnosis.router)
 
 
 @app.get("/health")
