@@ -3,13 +3,32 @@
 Serves the API contract at :8000. Routers are registered as they are
 built (auth OC-03, ocr OC-05, imaging OC-06, faceid OC-07, ...).
 """
+import logging
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+logger = logging.getLogger("carescribe.main")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Startup: seed Orthanc with a test study (OC-06). Shutdown: dispose engine."""
+    from services import dicom_seed
+
+    await dicom_seed.seed_orthanc()
+    yield
+    from database import engine
+
+    await engine.dispose()
+
 
 app = FastAPI(
     title="CareScribe API",
     version="0.1.0",
     description="AI health passport for rural India — backend.",
+    lifespan=lifespan,
 )
 
 # OC-14 will tighten this to env-configured origins.
@@ -21,11 +40,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from routes import auth, health, ocr  # noqa: E402  (import after app defined)
+from routes import auth, health, imaging, ocr  # noqa: E402  (import after app defined)
 
 app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(ocr.router)
+app.include_router(imaging.router)
 
 
 @app.get("/health")
