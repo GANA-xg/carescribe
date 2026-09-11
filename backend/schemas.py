@@ -36,3 +36,15 @@ class AuthResponse(BaseModel):
 class TokenRefreshRequest(BaseModel):
     # OC-14 adds POST /auth/refresh using a still-valid token.
     token: str
+
+
+class OcrResult(BaseModel):
+    raw_text: str
+    structured: dict
+    model_used: str
+    confidence: float
+
+
+class OcrStatusResponse(BaseModel):
+    status: str
+    result: Optional[OcrResult] = None
