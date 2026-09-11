@@ -1,19 +1,25 @@
-"""Auth routes — register, login, me. API contract: /auth/*.
+"""Auth routes — register, login, me, refresh. API contract: /auth/*.
 
 POST /auth/register — patient or doctor signup, returns {user, token}
 POST /auth/login    — returns {user, token}
 GET  /auth/me       — protected, returns {user}
+POST /auth/refresh  — exchange a valid token for a fresh one (OC-14)
+
+Rate limited to 10/min per IP (brute-force protection).
 """
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from auth import create_token, get_current_user, hash_password, verify_password
+from auth import create_token, decode_token, get_current_user, hash_password, verify_password
 from database import get_db
 from models.db import Doctor, Patient, User
+from rate_limit import limiter
 from schemas import AuthResponse, LoginRequest, RegisterRequest, UserOut
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+AUTH_LIMIT = "10/minute"
 
 
 def _auth_payload(user: User) -> AuthResponse:
@@ -21,7 +27,8 @@ def _auth_payload(user: User) -> AuthResponse:
 
 
 @router.post("/register", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
-async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
+@limiter.limit(AUTH_LIMIT)
+async def register(request: Request, body: RegisterRequest, db: AsyncSession = Depends(get_db)):
     """Create a User (+ Patient/Doctor profile) and issue a JWT.
 
     Anyone can call. role determines the profile row and dashboard redirect.
@@ -47,7 +54,8 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/login", response_model=AuthResponse)
-async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
+@limiter.limit(AUTH_LIMIT)
+async def login(request: Request, body: LoginRequest, db: AsyncSession = Depends(get_db)):
     """Verify password, return {user, token}. Anyone can call."""
     user = await db.scalar(select(User).where(User.email == body.email))
     if user is None or not verify_password(body.password, user.password_hash):
@@ -59,3 +67,15 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
 async def me(user: User = Depends(get_current_user)):
     """Return the authenticated user. Protected — any role."""
     return UserOut.model_validate(user)
+
+
+@router.post("/refresh", response_model=dict)
+@limiter.limit(AUTH_LIMIT)
+async def refresh(request: Request, user: User = Depends(get_current_user)):
+    """Issue a fresh 7-day token for a still-valid session. Protected.
+
+    Lets the deployment rotate JWT_SECRET: after rotation old tokens
+    fail auth; clients re-login or use a not-yet-expired token to refresh
+    before the rotation moment.
+    """
+    return {"token": create_token(user), "user": UserOut.model_validate(user)}

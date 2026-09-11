@@ -63,7 +63,7 @@ def _fallback_embed(text: str) -> list[float]:
     """
     vec = [0.0] * EMBED_DIM
     for word in text.lower().split():
-        h = int(hashlib.md5(word.encode()).hexdigest(), 16)
+        h = int(hashlib.sha256(word.encode()).hexdigest(), 16)  # non-security bucketing
         vec[h % EMBED_DIM] += 1.0
     norm = math.sqrt(sum(v * v for v in vec)) or 1.0
     return [v / norm for v in vec]

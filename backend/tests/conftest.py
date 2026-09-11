@@ -1,10 +1,14 @@
 """Shared test fixtures — engine teardown + face-test row cleanup."""
-import pytest_asyncio
-from sqlalchemy import delete, select
+import os
 
-import database
-from database import SessionLocal
-from models.db import FaceEmbedding, Patient, User
+os.environ.setdefault("RATE_LIMITS", "off")  # before app import anywhere
+
+import pytest_asyncio  # noqa: E402
+from sqlalchemy import delete, select  # noqa: E402
+
+import database  # noqa: E402
+from database import SessionLocal  # noqa: E402
+from models.db import FaceEmbedding, Patient, User  # noqa: E402
 
 
 @pytest_asyncio.fixture(autouse=True)
