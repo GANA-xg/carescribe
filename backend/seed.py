@@ -17,13 +17,13 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 TEST_PATIENT = {
     "name": "Test Patient",
-    "email": "patient@carescribe.test",
+    "email": "patient@example.com",
     "password": "patientpass123",
 }
 
 TEST_DOCTOR = {
     "name": "Test Doctor",
-    "email": "doctor@carescribe.test",
+    "email": "doctor@example.com",
     "password": "doctorpass123",
     "specialization": "Internal Medicine",
     "license_number": "REG-TEST-0001",

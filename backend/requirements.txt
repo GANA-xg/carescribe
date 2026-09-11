@@ -6,6 +6,7 @@ alembic==1.13.*
 psycopg2-binary==2.9.*   # alembic migrations
 pydantic==2.*
 pydantic-settings==2.*
+email-validator==2.*
 python-jose[cryptography]==3.3.*
 passlib==1.7.4
 bcrypt==4.0.1

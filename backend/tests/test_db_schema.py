@@ -23,14 +23,14 @@ async def test_tables_exist_and_seed_present():
         patient_user = (
             await session.execute(
                 select(User)
-                .where(User.email == "patient@carescribe.test")
+                .where(User.email == "patient@example.com")
                 .options(selectinload(User.patient))
             )
         ).scalar_one()
         doctor_user = (
             await session.execute(
                 select(User)
-                .where(User.email == "doctor@carescribe.test")
+                .where(User.email == "doctor@example.com")
                 .options(selectinload(User.doctor))
             )
         ).scalar_one()
