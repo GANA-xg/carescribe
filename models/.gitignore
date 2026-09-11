@@ -1,0 +1,21 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.env
+
+# Scratch space for local smoke tests
+.smoke/
+
+# Downloaded weights and datasets are large artefacts — never committed.
+weights/*.pth
+weights/*.pkl
+weights/*.faiss
+data/
+logs/*.db
+logs/*.log
+logs/*.sqlite3
+
+# Evaluation output (regenerate with scripts/evaluate_*.py)
+reports/*.csv
+reports/*.md

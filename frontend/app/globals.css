@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design System CSS Variables */
+:root {
+  /* Brand */
+  --color-primary: #ff385c;
+  --color-primary-active: #e00b41;
+  --color-primary-disabled: #ffd1da;
+  --color-error: #c13515;
+
+  /* Text colors */
+  --color-ink: #222222;
+  --color-body: #3f3f3f;
+  --color-muted: #6a6a6a;
+  --color-muted-soft: #929292;
+
+  /* Surfaces */
+  --color-canvas: #ffffff;
+  --color-surface-soft: #f7f7f7;
+  --color-surface-strong: #f2f2f2;
+
+  /* Borders */
+  --color-hairline: #dddddd;
+  --color-hairline-soft: #ebebeb;
+  --color-border-strong: #c1c1c1;
+
+  /* Utility */
+  --color-white: #ffffff;
+  --color-scrim: rgba(0,0,0,0.5);
+  --color-legal-link: #428bff;
+
+  /* Font */
+  --font: 'Inter', -apple-system, system-ui, Roboto, 'Helvetica Neue', sans-serif;
+
+  /* Spacing */
+  --space-xxs: 2px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-base: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-xxl: 48px;
+  --space-section: 64px;
+
+  /* Border Radius */
+  --rounded-none: 0px;
+  --rounded-xs: 4px;
+  --rounded-sm: 8px;
+  --rounded-md: 14px;
+  --rounded-lg: 20px;
+  --rounded-xl: 32px;
+  --rounded-full: 9999px;
+
+  /* Shadow */
+  --shadow-card: rgba(0,0,0,0.02) 0 0 0 1px, rgba(0,0,0,0.04) 0 2px 6px 0, rgba(0,0,0,0.10) 0 4px 8px 0;
+}
+
+/* Breakpoints - mobile first */
+/* sm - Tablet at 744px */
+@media (min-width: 744px) {}
+
+/* md - Desktop at 1128px */
+@media (min-width: 1128px) {}
+
+/* lg - Wide at 1440px, cap content at 1280px */
+@media (min-width: 1440px) {}
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  padding: 0;
+  margin: 0;
+  font-family: var(--font);
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+  width: 100%;
+}
+
+/* Typography styles based on design tokens */
+.text-display-xl { font: 700 28px/1.43 var(--font); }
+.text-display-lg { font: 500 22px/1.18 var(--font); }
+.text-display-md { font: 700 21px/1.43 var(--font); }
+.text-display-sm { font: 600 20px/1.20 var(--font); }
+
+.text-title-md { font: 600 16px/1.25 var(--font); }
+.text-title-sm { font: 500 16px/1.25 var(--font); }
+
+.text-body-md { font: 400 16px/1.50 var(--font); }
+.text-body-sm { font: 400 14px/1.43 var(--font); }
+
+.text-caption { font: 500 14px/1.29 var(--font); }
+.text-caption-sm { font: 400 13px/1.23 var(--font); }
+.text-badge { font: 600 11px/1.18 var(--font); }
+.text-micro { font: 700 12px/1.33 var(--font); }
+.text-tag { font: 700 8px/1.25 var(--font); text-transform: uppercase; }
+.text-button-md { font: 500 16px/1.25 var(--font); }
+.text-button-sm { font: 500 14px/1.29 var(--font); }
+.text-nav { font: 600 16px/1.25 var(--font); }
+.text-link { font: 400 14px/1.43 var(--font); }
+.text-rating { font: 700 64px/1.10 var(--font); }

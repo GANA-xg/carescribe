@@ -1,0 +1,210 @@
+# CareScribe — full local stack (dev only).
+# Production config: docker-compose.prod.yml (OC-15).
+
+x-backend-env: &backend-env
+  DATABASE_URL: postgresql+asyncpg://carescribe:carescribe@postgres:5432/carescribe
+  JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
+  REDIS_URL: redis://redis:6379/0
+  MODEL_SERVICE_URL: http://models:9000
+  OPENEMR_BASE_URL: http://openemr:80/apis/default/fhir
+  OPENEMR_TOKEN_URL: http://openemr:80/apis/default/token
+  OPENEMR_CLIENT_ID: ${OPENEMR_CLIENT_ID:-carescribe-backend}
+  OPENEMR_CLIENT_SECRET: ${OPENEMR_CLIENT_SECRET:-dev-openemr-secret}
+  ORTHANC_URL: http://orthanc:8042
+  OHIF_URL: http://ohif:80
+  FERNET_KEY: ${FERNET_KEY:-dev-only-insecure-key-replace-me}
+  LLM_API_KEY: ${LLM_API_KEY:-}
+  LLM_MODEL: ${LLM_MODEL:-claude-sonnet-4-6}
+  CORS_ORIGINS: http://localhost:3000
+  ENVIRONMENT: development
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg15
+    container_name: carescribe-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: carescribe
+      POSTGRES_PASSWORD: carescribe
+      POSTGRES_DB: carescribe
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - carescribe_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U carescribe -d carescribe"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    container_name: carescribe-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - carescribe_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mariadb:
+    image: mariadb:11.8
+    container_name: carescribe-mariadb
+    restart: unless-stopped
+    command: ["mariadbd", "--character-set-server=utf8mb4"]
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: openemr
+      MYSQL_PASSWORD: openemr
+      MYSQL_DATABASE: openemr
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - carescribe_net
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  openemr:
+    image: openemr/openemr:8.1.1
+    container_name: carescribe-openemr
+    restart: unless-stopped
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mariadb
+      MYSQL_ROOT_PASS: root
+      MYSQL_USER: openemr
+      MYSQL_PASS: openemr
+      OE_USER: admin
+      OE_PASS: pass
+      OPENEMR_SETTING__rest_api: "1"
+      OPENEMR_SETTING__rest_fhir_api: "1"
+      OPENEMR_SETTING__rest_system: "1"
+      TZ: ${TZ:-UTC}
+    ports:
+      - "8300:80"
+    volumes:
+      - openemr_sites:/var/www/localhost/htdocs/openemr/sites
+      - openemr_logs:/var/log/openemr
+    networks:
+      - carescribe_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 480s # OpenEMR first boot auto-install is slow (~5-8 min)
+
+  orthanc:
+    image: jodogne/orthanc-plugins:latest
+    container_name: carescribe-orthanc
+    restart: unless-stopped
+    ports:
+      - "8042:8042"
+    volumes:
+      - orthanc_data:/var/lib/orthanc/db
+      - ./infra/orthanc/orthanc.json:/etc/orthanc/orthanc.json:ro
+    networks:
+      - carescribe_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8042/system || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  ohif:
+    image: ohif/viewer:latest
+    container_name: carescribe-ohif
+    restart: unless-stopped
+    depends_on:
+      - orthanc
+    ports:
+      - "3001:80" # OHIF on 3001 in dev so it never collides with Next.js on 3000
+    volumes:
+      - ./infra/ohif/app-config.js:/usr/share/nginx/html/app-config.js:ro
+    networks:
+      - carescribe_net
+
+  models:
+    build: ./models
+    container_name: carescribe-models
+    restart: unless-stopped
+    environment:
+      REDIS_URL: redis://redis:6379/1
+    expose:
+      - "9000" # INTERNAL ONLY — never in the public port map
+    networks:
+      - carescribe_net
+
+  backend:
+    build: ./backend
+    container_name: carescribe-backend
+    restart: unless-stopped
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app
+    environment:
+      <<: *backend-env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - backend_tmp:/tmp
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      orthanc:
+        condition: service_healthy
+    networks:
+      - carescribe_net
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\" || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  frontend:
+    image: node:22-alpine
+    container_name: carescribe-frontend
+    restart: unless-stopped
+    working_dir: /app
+    command: sh -c "npm install -g npm@12 >/dev/null 2>&1; npm install --include=dev && npm run dev -- --hostname 0.0.0.0 --port 3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+      NEXT_PUBLIC_OHIF_URL: http://localhost:3001
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - carescribe_net
+
+volumes:
+  pg_data:
+  mariadb_data:
+  orthanc_data:
+  openemr_sites:
+  openemr_logs:
+  backend_tmp:
+  frontend_node_modules:
+
+networks:
+  carescribe_net:
+    driver: bridge

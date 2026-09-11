@@ -1,0 +1,46 @@
+# CareScribe model service — OPTIONAL heavy backends.
+#
+# Install with:  pip install -r requirements-models.txt
+#
+# Nothing here is required for the service to boot. Each entry corresponds to a
+# fallback in `services/` that gets upgraded to the real model once importable.
+# On CPU-only boxes, prefer the CPU torch wheel:
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+
+# --- FB-02 dual OCR -------------------------------------------------------
+torch
+torchvision
+transformers
+sentencepiece
+# Chandra VLM ships as a GitHub project rather than a stable PyPI package:
+#   pip install git+https://github.com/datalab-to/chandra.git
+chandra-ocr
+
+# --- FB-03 clinical NER ---------------------------------------------------
+spacy
+medspacy
+# then:  python -m spacy download en_core_web_sm
+#        python -m spacy download en_ner_bc5cdr_md
+
+# --- FB-04 face recognition ----------------------------------------------
+uniface
+faiss-cpu
+
+# --- FB-05 / FB-11 brain tumour CNN --------------------------------------
+scikit-image
+grad-cam
+matplotlib
+kaggle
+
+# --- FB-06 / FB-07 classical -------------------------------------------------
+xgboost
+shap
+
+# --- FB-08 / FB-09 / FB-10 embeddings, speech ---------------------------
+sentence-transformers
+faster-whisper
+gTTS
+TTS
+
+# --- FB-11 evaluation reporting -----------------------------------------
+pandas

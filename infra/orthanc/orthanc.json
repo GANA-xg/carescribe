@@ -1,0 +1,32 @@
+{
+  "Name": "CareScribe Orthanc",
+
+  "StorageDirectory": "/var/lib/orthanc/db",
+  "StorageCompression": false,
+  "MaximumStorageSize": 0,
+  "MaximumPatientCount": 0,
+  "MaximumStorageCacheSize": 128,
+
+  "Plugins": [
+    "/usr/share/orthanc/plugins",
+    "/usr/local/share/orthanc/plugins"
+  ],
+
+  "RemoteAccessAllowed": true,
+  "AuthenticationEnabled": false,
+
+  "HttpPort": 8042,
+  "HttpResponseTimeout": 60,
+
+  "HttpHeaders": {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Authorization, Content-Type, Accept",
+    "Access-Control-Expose-Headers": "Content-Type, Content-Length"
+  },
+
+  "DicomAET": "CARESCRIBE",
+  "DicomCheckCalledAet": false,
+  "DicomModalities": {},
+  "DicomWorklists": {}
+}
