@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import AuthenticatedShell from '../../../components/shared/AuthenticatedShell';
 import { Button, Card, Input, StepIndicator } from '../../../components/ui';
@@ -196,9 +197,13 @@ function UploadFlow() {
             </div>
           ) : (
             <div className="flex flex-col gap-[var(--space-base)]">
-              <img
+              <Image
                 src={previewUrl}
                 alt="Prescription preview"
+                width={0}
+                height={0}
+                sizes="100vw"
+                unoptimized
                 className="w-full rounded-[var(--rounded-md)] object-contain max-h-80 bg-[var(--color-surface-soft)]"
               />
               <div className="flex gap-[var(--space-base)]">
