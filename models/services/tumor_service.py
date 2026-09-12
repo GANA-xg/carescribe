@@ -67,7 +67,7 @@ class TumorService:
                 "--index-url https://download.pytorch.org/whl/cpu"
             ) from exc
 
-        payload = torch.load(str(weights_path), map_location="cpu")
+        payload = torch.load(str(weights_path), map_location="cpu", weights_only=False)
         state_dict = payload.get("state_dict", payload) if isinstance(payload, dict) else payload
         classes = tuple(payload.get("classes", CLASSES)) if isinstance(payload, dict) else CLASSES
         image_size = int(payload.get("image_size", DEFAULT_IMAGE_SIZE)) if isinstance(payload, dict) else DEFAULT_IMAGE_SIZE

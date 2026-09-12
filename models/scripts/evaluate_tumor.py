@@ -76,7 +76,7 @@ def evaluate(args: argparse.Namespace) -> int:
         )
         return 1
 
-    payload = torch.load(str(args.weights), map_location="cpu")
+    payload = torch.load(str(args.weights), map_location="cpu", weights_only=False)
     state_dict = payload.get("state_dict", payload) if isinstance(payload, dict) else payload
     classes = list(payload.get("classes", [])) if isinstance(payload, dict) else []
     image_size = int(payload.get("image_size", DEFAULT_IMAGE_SIZE)) if isinstance(payload, dict) else DEFAULT_IMAGE_SIZE

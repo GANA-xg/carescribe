@@ -196,6 +196,11 @@ def train(args: argparse.Namespace) -> int:
     torch.save(
         {
             "state_dict": best_state,
+            "classes": classes,
+            "image_size": args.image_size,
+            "arch": "efficientnet_b0",
+            "torch_version": torch.__version__,
+            "trained_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "arch": "efficientnet_b0",
             "classes": classes,
             "image_size": args.image_size,

@@ -137,7 +137,7 @@ class NerResponse(TimedResponse):
 # Tumour classification (FB-05)
 # --------------------------------------------------------------------------
 
-TumorClass = Literal["glioma", "meningioma", "pituitary", "no_tumor", "unavailable"]
+TumorClass = Literal["glioma", "meningioma", "pituitary", "no_tumor", "notumor", "unavailable"]
 
 
 class TumorResponse(TimedResponse):
