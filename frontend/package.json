@@ -9,7 +9,9 @@
     "start": "next start",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "lint": "next lint"
+    "lint": "next lint",
+    "e2e": "playwright test",
+    "e2e:headed": "playwright test --headed"
   },
   "keywords": [],
   "author": "",
@@ -36,6 +38,7 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@types/react": "19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
     "@vitest/ui": "^5.0.0",

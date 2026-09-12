@@ -8,6 +8,7 @@ import { Button, Card, Input, StepIndicator } from '../../../components/ui';
 import { api } from '../../../lib/api';
 import { useAuthStore } from '../../../store/auth';
 import type { OcrResult, StructuredPrescription } from '../../../lib/types';
+import { patientIdOf } from '../../../lib/types';
 
 type Step = 0 | 1 | 2;
 type EditedRx = {
@@ -138,7 +139,7 @@ function UploadFlow() {
     setSaving(true);
     setSaveError(null);
     try {
-      await api.passport.addRecord(user.id, {
+      await api.passport.addRecord(patientIdOf(user), {
         type: 'prescription',
         data: {
           drugs: reviewed.edited.drugs,

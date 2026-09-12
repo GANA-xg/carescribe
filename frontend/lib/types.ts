@@ -11,7 +11,18 @@ export type User = {
   email: string;
   role: Role;
   created_at?: string;
+  // Profile row ids — patient_id is what every patient-scoped
+  // endpoint (/passport, /assistant, /imaging) expects in its path.
+  patient_id?: string | null;
+  doctor_id?: string | null;
 };
+
+// Resolve the id to use for patient-scoped routes.
+export function patientIdOf(user: User): string {
+  if (user.patient_id) return user.patient_id;
+  // Fallback for sessions created before the contract change.
+  return user.id;
+}
 
 export type RegisterRequest = {
   name: string;

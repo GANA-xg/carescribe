@@ -8,6 +8,7 @@ import { Button, Card } from '../../components/ui';
 import { api } from '../../lib/api';
 import { useAuthStore } from '../../store/auth';
 import type { HealthRecord } from '../../lib/types';
+import { patientIdOf } from '../../lib/types';
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -54,8 +55,8 @@ function DashboardBody() {
   const [prescriptionRecords, setPrescriptionRecords] = useState<HealthRecord[] | null>(null);
 
   const passport = useQuery({
-    queryKey: ['passport', user.id],
-    queryFn: () => api.passport.get(user.id),
+    queryKey: ['passport', patientIdOf(user)],
+    queryFn: () => api.passport.get(patientIdOf(user)),
   });
 
   // Dashboard shows prescriptions; type=prescription records from the passport.

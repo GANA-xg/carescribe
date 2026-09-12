@@ -3,9 +3,10 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
-import { Search } from 'lucide-react';
+import { Search, UserRound } from 'lucide-react';
 import AuthenticatedShell from '../../components/shared/AuthenticatedShell';
 import { Button, Card } from '../../components/ui';
+import FaceIDScanner from '../../components/doctor/FaceIDScanner';
 import { api } from '../../lib/api';
 import { useAuthStore } from '../../store/auth';
 import type { DoctorPatient } from '../../lib/types';
@@ -76,6 +77,7 @@ function PatientSkeleton() {
 function DoctorBody() {
   const user = useAuthStore((s) => s.user)!;
   const [query, setQuery] = useState('');
+  const [scannerOpen, setScannerOpen] = useState(false);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['doctor-patients'],
@@ -101,24 +103,47 @@ function DoctorBody() {
       </p>
 
       <div className="mt-6">
-        <label htmlFor="patient-search" className="sr-only">
-          Search patients by name or email
-        </label>
-        <div className="relative">
-          <Search
-            className="absolute left-[var(--space-base)] top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--color-muted)]"
-            aria-hidden="true"
-          />
-          <input
-            id="patient-search"
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search patients by name or email…"
-            className="w-full h-[52px] rounded-full shadow-card border border-[var(--color-hairline)] bg-white pl-[48px] pr-[var(--space-base)] text-body-md text-[var(--color-ink)] placeholder:text-[var(--color-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-ink)]"
-          />
+        <div className="flex gap-[var(--space-sm)]">
+          <div className="flex-1 relative">
+            <label htmlFor="patient-search" className="sr-only">
+              Search patients by name or email
+            </label>
+            <div className="relative">
+              <Search
+                className="absolute left-[var(--space-base)] top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--color-muted)]"
+                aria-hidden="true"
+              />
+              <input
+                id="patient-search"
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search patients by name or email…"
+                className="w-full h-[52px] rounded-full shadow-card border border-[var(--color-hairline)] bg-white pl-[48px] pr-[var(--space-base)] text-body-md text-[var(--color-ink)] placeholder:text-[var(--color-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-ink)]"
+              />
+            </div>
+          </div>
+          <Button
+            variant="secondary"
+            aria-label="Scan patient by face"
+            onClick={() => setScannerOpen(true)}
+            className="h-[52px] rounded-full"
+          >
+            <UserRound className="h-5 w-5" aria-hidden="true" />
+            Scan Patient
+          </Button>
         </div>
       </div>
+
+      <FaceIDScanner
+        isOpen={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onPatientSelected={(p) => {
+          if (p.id) {
+            window.location.href = `/doctor/imaging/${p.id}`;
+          }
+        }}
+      />
 
       <div className="mt-6 flex flex-col gap-[var(--space-sm)]" role="list" aria-label="Patient list">
         {isLoading ? (

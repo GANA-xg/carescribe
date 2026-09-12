@@ -46,8 +46,15 @@ function getToken(): string | null {
 
 function setToken(token: string | null) {
   if (typeof window === 'undefined') return;
-  if (token === null) localStorage.removeItem(TOKEN_KEY);
-  else localStorage.setItem(TOKEN_KEY, token);
+  if (token === null) {
+    localStorage.removeItem(TOKEN_KEY);
+    document.cookie = `${TOKEN_KEY}=; Path=/; Max-Age=0; SameSite=Lax`;
+  } else {
+    localStorage.setItem(TOKEN_KEY, token);
+    // Mirror the JWT into a cookie so Next.js middleware can gate
+    // /patient and /doctor navigations (server-side, no JS needed).
+    document.cookie = `${TOKEN_KEY}=${token}; Path=/; SameSite=Lax`;
+  }
 }
 
 function handle401(path: string, detail?: string): never {
