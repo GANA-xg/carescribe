@@ -11,7 +11,7 @@ export interface LoadingSpinnerProps {
 const LoadingSpinner = ({ className, message }: LoadingSpinnerProps) => {
   return (
     <div className={cn('flex flex-col items-center justify-center gap-[var(--space-sm)]', className)}>
-      <Loader2 className="h-8 w-8 animate-spin text-[var(--color-primary)]" />
+      <Loader2 className="h-8 w-8 animate-spin text-[var(--color-primary)]" role="status" aria-label="Loading" />
       {message && (
         <p className="text-body-md text-[var(--color-muted)]">
           {message}

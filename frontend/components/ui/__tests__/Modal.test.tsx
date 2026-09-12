@@ -13,11 +13,21 @@ describe('Modal', () => {
 
   it('renders when isOpen is true', () => {
     render(
-      <Modal isOpen={onClose={() => {}}>
+      <Modal isOpen={true} onClose={() => {}}>
         <div>Modal content</div>
       </Modal>
     );
     expect(screen.getByText('Modal content')).toBeInTheDocument();
+  });
+
+  it('renders as a dialog with aria-modal', () => {
+    render(
+      <Modal isOpen={true} onClose={() => {}}>
+        <div>Content</div>
+      </Modal>
+    );
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
   });
 
   it('renders with title', () => {
@@ -45,8 +55,18 @@ describe('Modal', () => {
         <div>Content</div>
       </Modal>
     );
-    const closeButton = screen.getByRole('button', { name: /close modal/i });
-    fireEvent.click(closeButton);
+    fireEvent.click(screen.getByRole('button', { name: /close modal/i }));
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls onClose when Escape is pressed', () => {
+    const onClose = vi.fn();
+    render(
+      <Modal isOpen={true} onClose={onClose}>
+        <div>Content</div>
+      </Modal>
+    );
+    fireEvent.keyDown(document, { key: 'Escape' });
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
@@ -57,10 +77,19 @@ describe('Modal', () => {
         <div>Content</div>
       </Modal>
     );
-    // Click on the backdrop (the first child which is the overlay)
-    fireEvent.click(container.firstChild);
-    // Note: This might not work due to stopPropagation in the modal content
-    // but we're testing the intended behavior
+    fireEvent.click(container.firstChild as HTMLElement);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not call onClose when content is clicked', () => {
+    const onClose = vi.fn();
+    render(
+      <Modal isOpen={true} onClose={onClose}>
+        <div>Content</div>
+      </Modal>
+    );
+    fireEvent.click(screen.getByText('Content'));
+    expect(onClose).not.toHaveBeenCalled();
   });
 
   it('has backdrop with scrim color', () => {
@@ -69,18 +98,19 @@ describe('Modal', () => {
         <div>Content</div>
       </Modal>
     );
-    const backdrop = container.firstChild;
+    const backdrop = container.firstChild as HTMLElement;
     expect(backdrop).toHaveClass('bg-[var(--color-scrim)]');
   });
 
-  it('renders modal content with correct styling', () => {
+  it('renders modal content card with rounded corners and padding', () => {
     render(
       <Modal isOpen={true} onClose={() => {}}>
         <div>Content</div>
       </Modal>
     );
-    const modal = document.querySelector('[class*="relative"]');
+    const modal = screen.getByRole('dialog');
     expect(modal).toHaveClass('rounded-[var(--rounded-md)]');
     expect(modal).toHaveClass('bg-white');
+    expect(modal).toHaveClass('p-8');
   });
 });

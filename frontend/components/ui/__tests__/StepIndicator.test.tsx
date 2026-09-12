@@ -9,38 +9,53 @@ describe('StepIndicator', () => {
     expect(screen.getByText('Review')).toBeInTheDocument();
   });
 
-  it('marks current step as active', () => {
+  it('renders one dot per step', () => {
+    render(<StepIndicator steps={['Upload', 'Process', 'Review']} current={0} />);
+    const circles = document.querySelectorAll('[data-testid="step-circle"]');
+    expect(circles.length).toBe(3);
+  });
+
+  it('marks current step dot as active with primary color', () => {
     render(<StepIndicator steps={['Upload', 'Process', 'Review']} current={1} />);
-    const activeStep = screen.getByText('Process');
-    expect(activeStep).toHaveClass('text-[var(--color-ink)]');
-    expect(activeStep).toHaveClass('font-medium');
+    const circles = document.querySelectorAll('[data-testid="step-circle"]');
+    expect(circles[1]).toHaveClass('bg-[var(--color-primary)]');
   });
 
-  it('marks previous steps as completed', () => {
+  it('marks previous steps as completed with primary color', () => {
     render(<StepIndicator steps={['Upload', 'Process', 'Review']} current={2} />);
-    // Upload should be completed (first step)
-    const completedCircle = document.querySelectorAll('.bg-[var(--color-primary)]');
-    expect(completedCircle.length).toBeGreaterThan(0);
+    const circles = document.querySelectorAll('[data-testid="step-circle"]');
+    expect(circles[0]).toHaveClass('bg-[var(--color-primary)]');
+    expect(circles[1]).toHaveClass('bg-[var(--color-primary)]');
+    expect(circles[2]).toHaveClass('bg-[var(--color-primary)]');
   });
 
-  it('marks future steps as inactive', () => {
+  it('marks future steps as inactive with hairline color', () => {
     render(<StepIndicator steps={['Upload', 'Process', 'Review']} current={0} />);
-    // Process and Review should be inactive
-    const inactiveCircle = document.querySelector('.bg-[var(--color-surface-soft)]');
-    expect(inactiveCircle).toBeInTheDocument();
+    const circles = document.querySelectorAll('[data-testid="step-circle"]');
+    expect(circles[1]).toHaveClass('bg-[var(--color-hairline)]');
+    expect(circles[2]).toHaveClass('bg-[var(--color-hairline)]');
   });
 
-  it('displays correct step numbers', () => {
+  it('renders connectors between dots', () => {
+    render(<StepIndicator steps={['A', 'B', 'C']} current={0} />);
+    const connectors = document.querySelectorAll('[data-testid="step-connector"]');
+    expect(connectors.length).toBe(2);
+  });
+
+  it('styles active step label with ink color and medium weight', () => {
+    render(<StepIndicator steps={['Upload', 'Process', 'Review']} current={1} />);
+    const activeLabel = screen.getByText('Process');
+    expect(activeLabel).toHaveClass('text-[var(--color-ink)]');
+    expect(activeLabel).toHaveClass('font-medium');
+  });
+
+  it('marks active step with aria-current', () => {
     render(<StepIndicator steps={['Upload', 'Process', 'Review']} current={0} />);
-    // Should show 1 for completed/active steps
-    expect(screen.getByText('1')).toBeInTheDocument();
+    expect(screen.getByText('Upload')).toHaveAttribute('aria-current', 'step');
   });
 
-  it('renders in a row layout', () => {
-    const { container } = render(<StepIndicator steps={['A', 'B']} current={0} />);
-    const indicator = container.firstChild;
-    expect(indicator).toHaveClass('flex');
-    expect(indicator).toHaveClass('items-center');
-    expect(indicator).toHaveClass('justify-between');
+  it('exposes overall step status via aria-label', () => {
+    render(<StepIndicator steps={['Capture', 'Processing', 'Review']} current={1} />);
+    expect(screen.getByLabelText('Step 2 of 3: Processing')).toBeInTheDocument();
   });
 });

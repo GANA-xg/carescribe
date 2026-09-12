@@ -5,17 +5,21 @@ import { cn } from '../../lib/utils';
 
 export interface BadgeProps {
   children: React.ReactNode;
-  variant?: 'default' | 'primary' | 'new';
+  variant?: 'default' | 'primary' | 'success' | 'warning' | 'danger';
   className?: string;
 }
 
 const badgeVariants = {
   default:
-    'inline-flex items-center rounded-full bg-white px-[var(--space-sm)] py-[var(--space-xxs)] text-badge text-[var(--color-ink)]',
+    'bg-[var(--color-surface-strong)] text-[var(--color-muted)]',
   primary:
-    'inline-flex items-center rounded-full bg-[var(--color-primary)] px-[var(--space-sm)] py-[var(--space-xxs)] text-badge text-white',
-  new:
-    'inline-flex items-center rounded-full bg-white px-[var(--space-sm)] py-[var(--space-xxs)] text-tag text-[var(--color-primary)] uppercase border border-[var(--color-primary)]',
+    'bg-[var(--color-primary)] text-white',
+  success:
+    'bg-[#22c55e] text-white',
+  warning:
+    'bg-[#f97316] text-white',
+  danger:
+    'bg-[var(--color-primary)] text-white',
 };
 
 const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
@@ -23,7 +27,11 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
     return (
       <span
         ref={ref}
-        className={cn(badgeVariants[variant], className)}
+        className={cn(
+          'inline-flex items-center rounded-full px-[10px] py-[4px] text-badge font-semibold',
+          badgeVariants[variant],
+          className
+        )}
       >
         {children}
       </span>

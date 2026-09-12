@@ -35,14 +35,28 @@ describe('Button', () => {
     render(<Button size="sm">Click me</Button>);
     const button = screen.getByRole('button', { name: /click me/i });
     expect(button).toBeInTheDocument();
-    expect(button).toHaveClass('h-[var(--space-base)]');
+    expect(button).toHaveClass('h-[var(--space-lg)]');
   });
 
   it('shows loading spinner when loading', () => {
     render(<Button loading>Click me</Button>);
     const button = screen.getByRole('button');
     expect(button).toBeDisabled();
-    expect(screen.getByRole('status')).toBeInTheDocument();
+    const spinner = screen.getByRole('status');
+    expect(spinner).toBeInTheDocument();
+    expect(spinner).toHaveClass('h-[18px]');
+    expect(spinner).toHaveClass('w-[18px]');
+  });
+
+  it('hides children while loading', () => {
+    render(<Button loading>Click me</Button>);
+    expect(screen.queryByText('Click me')).not.toBeInTheDocument();
+  });
+
+  it('uses opacity 0.4 when disabled', () => {
+    render(<Button disabled>Click me</Button>);
+    const button = screen.getByRole('button', { name: /click me/i });
+    expect(button).toHaveClass('disabled:opacity-40');
   });
 
   it('does not show spinner when not loading', () => {

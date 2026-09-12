@@ -21,13 +21,14 @@ describe('LoadingSpinner', () => {
 
   it('does not render message when not provided', () => {
     render(<LoadingSpinner />);
-    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    const message = screen.queryByText('Loading data...');
+    expect(message).not.toBeInTheDocument();
   });
 
   it('applies custom className', () => {
     render(<LoadingSpinner className="custom-spinner" />);
-    const container = screen.getByRole('status').parentElement;
-    expect(container).toHaveClass('custom-spinner');
+    const container = document.querySelector('.custom-spinner');
+    expect(container).toBeInTheDocument();
   });
 
   it('renders in a centered flex container', () => {
@@ -35,5 +36,11 @@ describe('LoadingSpinner', () => {
     expect(container.firstChild).toHaveClass('flex');
     expect(container.firstChild).toHaveClass('items-center');
     expect(container.firstChild).toHaveClass('justify-center');
+  });
+
+  it('has aria-label for accessibility', () => {
+    render(<LoadingSpinner />);
+    const spinner = screen.getByLabelText('Loading');
+    expect(spinner).toBeInTheDocument();
   });
 });

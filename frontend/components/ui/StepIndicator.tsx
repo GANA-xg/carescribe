@@ -10,35 +10,64 @@ export interface StepIndicatorProps {
 
 const StepIndicator = ({ steps, current, className }: StepIndicatorProps) => {
   return (
-    <div className={cn('flex items-center justify-between', className)}>
-      {steps.map((step, index) => {
-        const isCompleted = index < current;
-        const isActive = index === current;
+    <div
+      className={cn('flex flex-col items-center', className)}
+      aria-label={`Step ${current + 1} of ${steps.length}: ${steps[current]}`}
+    >
+      <div className="flex items-center w-full">
+        {steps.map((step, index) => {
+          const isActive = index === current;
+          const isCompleted = index < current;
 
-        return (
-          <div key={step} className="flex flex-col items-center flex-1">
+          return (
             <div
-              className={cn(
-                'flex h-10 w-10 items-center justify-center rounded-full',
-                isCompleted && 'bg-[var(--color-primary)] text-white',
-                isActive && 'border-2 border-[var(--color-primary)] text-[var(--color-primary)]',
-                !isCompleted && !isActive && 'bg-[var(--color-surface-soft)] text-[var(--color-muted)] border border-[var(--color-hairline)]',
-              )}
+              key={step}
+              className="flex items-center flex-1 last:flex-none"
             >
-              {isCompleted || isActive ? index + 1 : null}
+              <div
+                data-testid="step-circle"
+                aria-hidden="true"
+                className={cn(
+                  'h-2 w-2 rounded-full flex-none',
+                  isActive && 'bg-[var(--color-primary)]',
+                  isCompleted && 'bg-[var(--color-primary)]',
+                  !isActive && !isCompleted && 'bg-[var(--color-hairline)]'
+                )}
+              />
+              {index < steps.length - 1 && (
+                <div
+                  aria-hidden="true"
+                  data-testid="step-connector"
+                  className={cn(
+                    'h-px flex-1 mx-2',
+                    index < current
+                      ? 'bg-[var(--color-primary)]'
+                      : 'bg-[var(--color-hairline)]'
+                  )}
+                />
+              )}
             </div>
+          );
+        })}
+      </div>
+      <div className="flex w-full mt-[var(--space-sm)]">
+        {steps.map((step, index) => {
+          const isActive = index === current;
+          return (
             <span
+              key={step}
+              aria-current={isActive ? 'step' : undefined}
               className={cn(
-                'mt-[var(--space-xs)] text-caption-sm',
-                isActive && 'text-[var(--color-ink)] font-medium',
-                !isActive && 'text-[var(--color-muted)]',
+                'flex-1 text-center text-caption-sm',
+                isActive && 'font-medium text-[var(--color-ink)]',
+                !isActive && 'text-[var(--color-muted)]'
               )}
             >
               {step}
             </span>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 };

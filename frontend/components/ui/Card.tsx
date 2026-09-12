@@ -3,10 +3,9 @@
 import { forwardRef } from 'react';
 import { cn } from '../../lib/utils';
 
-export interface CardProps {
+export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   padding?: 'sm' | 'md' | 'lg';
-  className?: string;
 }
 
 const paddingClasses = {
@@ -16,7 +15,7 @@ const paddingClasses = {
 };
 
 const Card = forwardRef<HTMLDivElement, CardProps>(
-  ({ className, children, padding = 'md' }, ref) => {
+  ({ className, children, padding = 'md', ...props }, ref) => {
     return (
       <div
         ref={ref}
@@ -26,6 +25,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
           paddingClasses[padding],
           className
         )}
+        {...props}
       >
         {children}
       </div>

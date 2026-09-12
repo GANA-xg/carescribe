@@ -13,13 +13,14 @@
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
     "types": [
-      "node"
+      "node",
+      "vitest/globals"
     ],
     "plugins": [
       {

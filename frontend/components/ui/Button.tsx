@@ -2,7 +2,6 @@
 
 import { forwardRef } from 'react';
 import { cn } from '../../lib/utils';
-import { Loader2 } from 'lucide-react';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'tertiary' | 'pill';
 export type ButtonSize = 'md' | 'sm';
@@ -14,7 +13,8 @@ export interface ButtonProps
   loading?: boolean;
 }
 
-const buttonBaseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
+const buttonBaseClasses =
+  'inline-flex items-center justify-center rounded-[var(--rounded-sm)] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40';
 
 const variantClasses = {
   primary:
@@ -28,8 +28,8 @@ const variantClasses = {
 };
 
 const sizeClasses = {
-  md: 'h-48px px-24px text-button-md',
-  sm: 'h-40px px-16px text-button-sm',
+  md: 'h-[var(--space-xxl)] px-[var(--space-lg)] text-button-md',
+  sm: 'h-[var(--space-lg)] px-[var(--space-base)] text-button-sm',
 };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -49,7 +49,11 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {loading ? (
-          <Loader2 className="animate-spin h-5 w-5" />
+          <span
+            className="animate-spin inline-block h-[18px] w-[18px] rounded-full border-2 border-white border-t-transparent"
+            role="status"
+            aria-label="Loading"
+          />
         ) : (
           children
         )}
