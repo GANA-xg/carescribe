@@ -9,6 +9,7 @@ import { Badge, Card } from '../../../components/ui';
 import { api } from '../../../lib/api';
 import { useAuthStore } from '../../../store/auth';
 import type { HealthRecord } from '../../../lib/types';
+import { patientIdOf } from '../../../lib/types';
 
 type Tab = 'all' | 'prescription' | 'imaging' | 'lab';
 
@@ -69,7 +70,7 @@ function PassportBody() {
   const user = useAuthStore((s) => s.user)!;
   const params = useSearchParams();
   const doctorViewing = params.get('pid');
-  const patientId = doctorViewing ?? user.id;
+  const patientId = doctorViewing ?? patientIdOf(user);
 
   const [tab, setTab] = useState<Tab>('all');
   const [selected, setSelected] = useState<HealthRecord | null>(null);

@@ -24,6 +24,10 @@ class UserOut(BaseModel):
     email: EmailStr
     role: str
     created_at: datetime.datetime
+    # Profile row ids — the patient_id every /passport, /prescriptions,
+    # /imaging and /assistant endpoint expects in its path.
+    patient_id: uuid.UUID | None = None
+    doctor_id: uuid.UUID | None = None
 
     model_config = ConfigDict(from_attributes=True)
 

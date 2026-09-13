@@ -7,6 +7,7 @@ import { api } from '../../../lib/api';
 import { useAuthStore } from '../../../store/auth';
 import { useChatStore, type StoredMessage } from '../../../store/chat';
 import type { ChatMessage } from '../../../lib/types';
+import { patientIdOf } from '../../../lib/types';
 
 function TypingDots() {
   return (
@@ -88,7 +89,7 @@ function ChatBody() {
     setSending(true);
     try {
       const res = await api.assistant.chat({
-        patient_id: user.id,
+        patient_id: patientIdOf(user),
         message: content,
         history: historyBefore(true),
       });
@@ -116,7 +117,7 @@ function ChatBody() {
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
         setSending(true);
         try {
-          const res = await api.assistant.voice(blob, user.id);
+          const res = await api.assistant.voice(blob, patientIdOf(user));
           if (res.transcript) addMessage({ role: 'user', content: `🎙️ ${res.transcript}` });
           addMessage({ role: 'assistant', content: res.reply, sources: res.sources });
         } catch (e) {
