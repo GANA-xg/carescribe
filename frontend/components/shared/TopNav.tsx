@@ -45,7 +45,7 @@ function useOutsideClick(onClose: () => void) {
 export default function TopNav() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
-  const pathname = usePathname();
+  const pathname = usePathname() ?? '';
   const [menuOpen, setMenuOpen] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
 
@@ -53,7 +53,8 @@ export default function TopNav() {
   const avatarRef = useOutsideClick(() => setAvatarOpen(false));
 
   const isActive = (href: string) =>
-    href === pathname || (href !== '/patient' && href !== '/doctor' && pathname.startsWith(href));
+    href === pathname ||
+    (href !== '/patient' && href !== '/doctor' && pathname.startsWith(href));
 
   const handleLogout = () => {
     logout();
