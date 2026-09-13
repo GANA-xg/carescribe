@@ -23,3 +23,6 @@ pg_data/
 *.swp
 .idea/
 .vscode/
+.claude/
+frontend/test-results/
+frontend/tsconfig.tsbuildinfo
