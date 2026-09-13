@@ -2,6 +2,7 @@
 
 import { useEffect, type ReactNode } from 'react';
 import TopNav from './TopNav';
+import ErrorBoundary from './ErrorBoundary';
 import { useAuthStore } from '../../store/auth';
 import { LoadingSpinner } from '../ui';
 
@@ -25,9 +26,9 @@ export default function AuthenticatedShell({ children }: { children: ReactNode }
   return (
     <div className="min-h-screen bg-[var(--color-canvas)]">
       <TopNav />
-      <div className="mx-auto w-full max-w-[1128px] px-[var(--space-base)] min-[744px]:px-[var(--space-lg)] pb-[var(--space-section)]">
-        {children}
-      </div>
+      <main className="mx-auto w-full max-w-[1128px] px-[var(--space-base)] min-[744px]:px-[var(--space-lg)] pb-[var(--space-section)]">
+        <ErrorBoundary>{children}</ErrorBoundary>
+      </main>
     </div>
   );
 }
