@@ -228,3 +228,12 @@ export type DiagnosisCompareResponse = {
   explanation: string;
   similarity?: number;
 };
+
+// ---------- Doctor dashboard ----------
+
+export type DoctorPatient = {
+  id: string;
+  name: string;
+  email: string;
+  last_visit: string | null;
+};

@@ -7,6 +7,7 @@ import type {
   ChatResponse,
   DiagnosisCompareRequest,
   DiagnosisCompareResponse,
+  DoctorPatient,
   DrugCompareResponse,
   FaceIdResponse,
   HealthRecord,
@@ -202,6 +203,12 @@ export const api = {
         method: 'POST',
         body: JSON.stringify(body),
       }),
+  },
+
+  doctor: {
+    // Doctor-only: every patient with name/email/last_visit
+    listPatients: () =>
+      request<{ patients: DoctorPatient[] }>('/patients'),
   },
 };
 

@@ -96,6 +96,7 @@ from routes import (  # noqa: E402
     health,
     imaging,
     ocr,
+    patients,
     passport,
     symptoms,
 )
@@ -111,6 +112,7 @@ app.include_router(symptoms.router)
 app.include_router(clinical.router)
 app.include_router(assistant.router)
 app.include_router(diagnosis.router)
+app.include_router(patients.router)
 
 
 @app.get("/health")
